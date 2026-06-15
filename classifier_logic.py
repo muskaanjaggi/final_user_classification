@@ -119,7 +119,7 @@ def classify_user(
 
     # ── Branch: Installed ─────────────────────────────────────────────────
     if active_policies > 3 or annual_premium > 100_000:
-        engagement_count = int(bool(has_partner)) + int(has_activity) + int(has_transactions)
+        engagement_count = int(bool(has_partner)) or int(has_activity) or int(has_transactions)
         if days_since_signup > 90 and engagement_count >= 2:
             return "Power User"
         return "Active User"
