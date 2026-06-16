@@ -88,11 +88,13 @@ def classify_user(
                YES -> Has any activity / transactions? -> Repitch User
                                                         -> Lapsed User
                NO  -> Inactive User
-       NO  -> High value (policies>3 OR premium>100k)?
-              YES -> Mature account (>90 days) AND 2+ engagement signals?
+       NO  -> High value (active_policies>3 OR annual_premium>100k)?
+              YES -> Mature account (>90 days) AND >= 2 of these 6 signals:
+                     (partner_code, lead, cpro, ioc, bbps>0, phc>0)?
                        -> Power User
                        -> Active User
-              NO  -> Recent signup (<=90 days) AND has any activity?
+              NO  -> (Low value: active_policies<=3 OR annual_premium<=100k)
+                     Recent signup (<=90 days) AND >= 1 engagement signal?
                        -> Normal User
                        -> Dormant User
     """
@@ -118,12 +120,29 @@ def classify_user(
         return "Inactive User"
 
     # ── Branch: Installed ─────────────────────────────────────────────────
+    # High value: active_policies > 3 OR annual_premium > 100,000
     if active_policies > 3 or annual_premium > 100_000:
-        engagement_count = int(bool(has_partner)) or int(has_activity) or int(has_transactions)
+        # Power User: count all 6 signals individually, need >= 2
+        #   1. partner_code assigned
+        #   2. lead
+        #   3. cpro
+        #   4. ioc
+        #   5. bbps_transactions > 0
+        #   6. phc_transactions > 0
+        engagement_count = (
+            int(bool(has_partner))
+            + int(bool(lead))
+            + int(bool(cpro))
+            + int(bool(ioc))
+            + int(bbps_transactions > 0)
+            + int(phc_transactions > 0)
+        )
         if days_since_signup > 90 and engagement_count >= 2:
             return "Power User"
         return "Active User"
 
+    # Low value: active_policies <= 3 OR annual_premium <= 100,000
+    # Normal User: low value + signed up <= 90 days ago + at least 1 engagement signal
     if days_since_signup <= 90 and (has_activity or has_transactions):
         return "Normal User"
     return "Dormant User"
