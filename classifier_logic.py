@@ -143,7 +143,7 @@ def classify_user(
 
     # Low value: active_policies <= 3 OR annual_premium <= 100,000
     # Normal User: low value + signed up <= 90 days ago + at least 1 engagement signal
-    if days_since_signup <= 90 and (has_activity or has_transactions):
+    if (has_activity or has_transactions):
         return "Normal User"
     return "Dormant User"
 
