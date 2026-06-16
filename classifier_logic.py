@@ -61,6 +61,12 @@ CATEGORY_INFO = {
         "description": "Uninstalled and never built up any policy/premium "
                         "value. Lowest priority segment.",
     },
+    "New User": {
+        "color": "#a855f7",
+        "icon": "🌱",
+        "description": "Recently signed up (≤90 days), low value, and no "
+                        "engagement signals yet. Early nurture priority.",
+    },
 }
 
 
@@ -80,7 +86,7 @@ def classify_user(
     today: date = None,
 ) -> str:
     """
-    Classify a single user profile into one of seven categories.
+    Classify a single user profile into one of eight categories.
 
     Decision tree:
     1. Uninstalled?
@@ -93,10 +99,12 @@ def classify_user(
                      (partner_code, lead, cpro, ioc, bbps>0, phc>0)?
                        -> Power User
                        -> Active User
-              NO  -> (Low value: active_policies<=3 OR annual_premium<=100k)
-                     Recent signup (<=90 days) AND >= 1 engagement signal?
-                       -> Normal User
-                       -> Dormant User
+              NO  -> Low value (active_policies<=3 AND annual_premium<=100k)
+                     Has any engagement signal (lead/cpro/ioc/bbps/phc)?
+                       YES -> Normal User
+                       NO  -> Recent signup (<=90 days)?
+                                YES -> New User
+                                NO  -> Dormant User
     """
     if today is None:
         today = date.today()
@@ -141,10 +149,16 @@ def classify_user(
             return "Power User"
         return "Active User"
 
-    # Low value: active_policies <= 3 OR annual_premium <= 100,000
-    # Normal User: low value + signed up <= 90 days ago + at least 1 engagement signal
-    if (has_activity or has_transactions):
+    # Low value: active_policies <= 3 AND annual_premium <= 100,000
+    # Normal User: low value + at least 1 engagement signal
+    if has_activity or has_transactions:
         return "Normal User"
+
+    # No engagement signals — split by account age
+    # New User:    signed up <= 90 days ago  (any policies/premium value)
+    # Dormant User: signed up >  90 days ago
+    if days_since_signup <= 90:
+        return "New User"
     return "Dormant User"
 
 
