@@ -120,19 +120,6 @@ The app will open at https://finaluserclassification-sybdaymh5gvkggejdmohtx.stre
 
 ---
 
-## 📦 Batch File Format
-
-Your CSV or Excel file must include these columns (column names are case-sensitive):
-
-```
-uninstalled, active_policies, annual_premium, bbps_transactions,
-phc_transactions, lead, cpro, ioc, partner_code, signup
-```
-
-Blank / NaN values are treated as `0` or `'na'` automatically. The output file will be identical to the input with a `user_category` column appended.
-
----
-
 ## 📦 Dependencies
 
 ```
