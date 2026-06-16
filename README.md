@@ -133,36 +133,6 @@ Blank / NaN values are treated as `0` or `'na'` automatically. The output file w
 
 ---
 
-## 🔧 Using the Classifier in Your Own Code
-
-```python
-from classifier_logic import classify_user, classify_dataframe
-from datetime import date
-
-# Single user
-category = classify_user(
-    uninstalled=False,
-    active_policies=5,
-    annual_premium=150000,
-    bbps_transactions=200,
-    phc_transactions=0,
-    lead=True,
-    cpro=True,
-    ioc=False,
-    has_partner=True,
-    signup_date=date(2024, 1, 1),
-)
-print(category)  # → Power User
-
-# Batch classification
-import pandas as pd
-df = pd.read_csv("users.csv")
-result = classify_dataframe(df)
-print(result["user_category"].value_counts())
-```
-
----
-
 ## 📦 Dependencies
 
 ```
